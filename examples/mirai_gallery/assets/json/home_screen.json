@@ -1222,6 +1222,10 @@
               "assetPath": "assets/json/filled_button_example.json"
             }
           }
+        },
+        {
+          "type": "sizedBox",
+          "height": 24.0
         }
       ]
     
