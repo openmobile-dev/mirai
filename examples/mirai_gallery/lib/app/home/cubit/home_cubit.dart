@@ -4,23 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'home_event.dart';
 part 'home_state.dart';
 
-class HomeBloc extends Bloc<HomeEvent, HomeState> {
+class HomeBloc extends Cubit<HomeState> {
   HomeBloc() : super(const HomeLoading()) {
-    on<_Initialize>(_onInitializeEvent);
-    on<UserInputEvent>(_onUserInputEvent);
     controller = TextEditingController()
       ..addListener(_textEditingControllerListener);
-    add(const _Initialize());
+    _initialize();
   }
 
   late final TextEditingController controller;
 
   final List<Map<String, dynamic>> _allItems = [];
 
-  void _onInitializeEvent(_Initialize event, Emitter<HomeState> emit) async {
+  void _initialize() async {
     final items = await _loadAndParseJsonFromAsset();
     if (items.isNotEmpty) {
       _allItems.addAll(items);
@@ -28,11 +25,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(HomeLoaded(items: items));
   }
 
-  void _onUserInputEvent(UserInputEvent event, Emitter<HomeState> emit) {
-    if (event.keyword.isNotEmpty) {
+  void _onUserInput({required String keyword}) {
+    if (keyword.isNotEmpty) {
       List<Map<String, dynamic>> matchedItems = [];
 
-      final String keyword = event.keyword.toLowerCase();
+      keyword = keyword.toLowerCase();
       for (final Map<String, dynamic> item in _allItems) {
         var text = item["title"]?["data"];
         if (text != null && text is String) {
@@ -60,9 +57,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  // Add `UserInputEvent` with the latest keyword
+  // Listen to text editing controller for the latest keyword
   void _textEditingControllerListener() {
-    add(UserInputEvent(keyword: controller.text));
+    _onUserInput(keyword: controller.text);
   }
 
   @override
