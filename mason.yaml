@@ -1,0 +1,3 @@
+bricks:
+  mirai_parser:
+    path: bricks/mirai_parser
