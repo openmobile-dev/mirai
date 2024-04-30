@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mirai/src/widgets/framework.dart';
+import 'package:mirai/mirai.dart';
 
 class Mirai{{#pascalCase}}{{name}}{{/pascalCase}}Parser extends MiraiParser<Mirai{{#pascalCase}}{{name}}{{/pascalCase}}> {
   @override
