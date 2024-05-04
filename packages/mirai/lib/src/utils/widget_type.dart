@@ -48,4 +48,6 @@ enum WidgetType {
   bottomNavigationView,
   wrap,
   autocomplete,
+  table,
+  tableCell,
 }
