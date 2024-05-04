@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:mirai/src/action_parsers/action_parsers.dart';
 import 'package:mirai/src/action_parsers/mirai_network_request/mirai_network_request_parser.dart';
 import 'package:mirai/src/framework/mirai_registry.dart';
-import 'package:mirai/src/parsers/mirai_auto_complete/mirai_auto_complete_parser.dart';
 import 'package:mirai/src/parsers/parsers.dart';
 import 'package:mirai/src/services/mirai_network_service.dart';
 import 'package:mirai/src/utils/log.dart';
@@ -71,6 +70,8 @@ class Mirai {
     const MiraiDefaultBottomNavigationControllerParser(),
     const MiraiWrapParser(),
     const MiraiAutoCompleteParser(),
+    const MiraiTableParser(),
+    const MiraiTableCellParser(),
   ];
 
   static final _actionParsers = <MiraiActionParser>[
