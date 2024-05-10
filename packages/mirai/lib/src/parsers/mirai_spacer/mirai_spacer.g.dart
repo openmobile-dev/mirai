@@ -1,19 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'mirai_mirai_spacer.dart';
+part of 'mirai_spacer.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$MiraiMiraiSpacerImpl _$$MiraiMiraiSpacerImplFromJson(
-        Map<String, dynamic> json) =>
-    _$MiraiMiraiSpacerImpl(
+_$MiraiSpacerImpl _$$MiraiSpacerImplFromJson(Map<String, dynamic> json) =>
+    _$MiraiSpacerImpl(
       flex: (json['flex'] as num?)?.toInt() ?? 1,
     );
 
-Map<String, dynamic> _$$MiraiMiraiSpacerImplToJson(
-        _$MiraiMiraiSpacerImpl instance) =>
+Map<String, dynamic> _$$MiraiSpacerImplToJson(_$MiraiSpacerImpl instance) =>
     <String, dynamic>{
       'flex': instance.flex,
     };
