@@ -841,6 +841,37 @@
     "leading": {
       "type": "icon",
       "iconType": "material",
+      "icon": "space_dashboard"
+    },
+    "title": {
+      "type": "text",
+      "data": "Mirai Spacer",
+      "style": {
+        "fontSize": 21
+      }
+    },
+    "subtitle": {
+      "type": "text",
+      "data": "Creates an adjustable, empty spacer that can be used to tune the spacing between widgets in a Flex container.",
+      "style": {
+        "fontSize": 12
+      }
+    },
+    "isThreeLine": true,
+    "onTap": {
+      "actionType": "navigate",
+      "navigationStyle": "push",
+      "widgetJson": {
+        "type": "exampleScreen",
+        "assetPath": "assets/json/spacer_example.json"
+      }
+    }
+  },
+  {
+    "type": "listTile",
+    "leading": {
+      "type": "icon",
+      "iconType": "material",
       "icon": "toggle_on"
     },
     "title": {
