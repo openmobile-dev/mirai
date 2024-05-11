@@ -35,6 +35,7 @@ enum WidgetType {
   checkBox,
   expanded,
   flexible,
+  spacer,
   safeArea,
   align,
   pageView,
