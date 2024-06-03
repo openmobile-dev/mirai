@@ -19,6 +19,13 @@ typedef ErrorWidgetBuilder = Widget Function(
 
 typedef LoadingWidgetBuilder = Widget Function(BuildContext context);
 
+/// The `Mirai` class is a central part of the Mirai framework.
+/// It provides methods to parse and render widgets from JSON, handle actions from JSON, and fetch and render widgets from network requests or assets.
+///
+/// The `Mirai` class uses a registry of parsers.md (`MiraiParser`) and action parsers.md (`MiraiActionParser`) to handle different types of widgets and actions.
+/// These parsers.md can be registered during the initialization of the `Mirai` class.
+///
+/// The `Mirai` class also provides utility methods to convert a widget to a `PreferredSizeWidget`.
 class Mirai {
   static final _parsers = <MiraiParser>[
     const MiraiContainerParser(),
@@ -218,4 +225,23 @@ extension MiraiExtension on Widget? {
     }
     return null;
   }
+}
+
+class CustomButtonParser extends MiraiParser<> {
+  @override
+  getModel(Map<String, dynamic> json) {
+    // TODO: implement getModel
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget parse(BuildContext context, model) {
+    // TODO: implement parse
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement type
+  String get type => throw UnimplementedError();
+
 }
