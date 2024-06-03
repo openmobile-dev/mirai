@@ -226,22 +226,3 @@ extension MiraiExtension on Widget? {
     return null;
   }
 }
-
-class CustomButtonParser extends MiraiParser<> {
-  @override
-  getModel(Map<String, dynamic> json) {
-    // TODO: implement getModel
-    throw UnimplementedError();
-  }
-
-  @override
-  Widget parse(BuildContext context, model) {
-    // TODO: implement parse
-    throw UnimplementedError();
-  }
-
-  @override
-  // TODO: implement type
-  String get type => throw UnimplementedError();
-
-}
