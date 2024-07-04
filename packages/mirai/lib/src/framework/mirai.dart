@@ -97,13 +97,14 @@ class Mirai {
   }
 
   static Widget? fromJson(Map<String, dynamic>? json, BuildContext context) {
+    String widgetType = 'unknown';
+    if (json == null) {
+      return null;
+    }
     try {
-      if (json == null) {
-        return null;
-      }
-
       var mutableJson = Map<String, dynamic>.from(json);
-      String widgetType = mutableJson['type'];
+      widgetType = mutableJson['type'];
+
       // Log.i('Widget type: $widgetType');
       MiraiParser? miraiParser = MiraiRegistry.instance.getParser(widgetType);
 
@@ -122,7 +123,7 @@ class Mirai {
         return _buildWidget(context, miraiParser, evaluator, mutableJson);
       }
     } catch (e) {
-      Log.e('Unexpected error: $e');
+      Log.e('WidgetType $widgetType cause unexpected error: $e');
       return null;
     }
   }
