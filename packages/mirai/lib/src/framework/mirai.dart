@@ -4,13 +4,10 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mirai/src/action_parsers/action_parsers.dart';
+import 'package:mirai/mirai.dart';
 import 'package:mirai/src/action_parsers/mirai_network_request/mirai_network_request_parser.dart';
-import 'package:mirai/src/framework/mirai_registry.dart';
-import 'package:mirai/src/parsers/parsers.dart';
 import 'package:mirai/src/services/mirai_network_service.dart';
 import 'package:mirai/src/utils/log.dart';
-import 'package:mirai_framework/mirai_framework.dart';
 
 typedef ErrorWidgetBuilder = Widget Function(
   BuildContext context,
@@ -93,22 +90,114 @@ class Mirai {
     MiraiNetworkService.initialize(dio ?? Dio());
   }
 
+  static Future<void> executeOnLoad(Map<String, dynamic>? onLoad, BuildContext context) async {
+    if (onLoad != null && context.mounted) {
+      await Mirai.onCallFromJson(onLoad, context);
+    }
+  }
+
   static Widget? fromJson(Map<String, dynamic>? json, BuildContext context) {
     try {
-      if (json != null) {
-        String widgetType = json['type'];
-        MiraiParser? miraiParser = MiraiRegistry.instance.getParser(widgetType);
-        if (miraiParser != null) {
-          final model = miraiParser.getModel(json);
-          return miraiParser.parse(context, model);
-        } else {
-          Log.w('Widget type [$widgetType] not supported');
-        }
+      if (json == null) {
+        return null;
+      }
+
+      var mutableJson = Map<String, dynamic>.from(json);
+      String widgetType = mutableJson['type'];
+      // Log.i('Widget type: $widgetType');
+      MiraiParser? miraiParser = MiraiRegistry.instance.getParser(widgetType);
+
+      if (miraiParser == null) {
+        Log.w('Widget type [$widgetType] not supported');
+        return null;
+      }
+
+      final evaluator = OpenmobileFunctionEvaluator();
+
+      mutableJson = _processQueryAttribute(context, evaluator, mutableJson);
+      if (mutableJson.containsKey('onLoad')) {
+        Log.i('Executing onLoad actions');
+        return _buildFutureWidget(context, miraiParser, evaluator, mutableJson);
+      } else {
+        return _buildWidget(context, miraiParser, evaluator, mutableJson);
       }
     } catch (e) {
-      Log.e(e);
+      Log.e('Unexpected error: $e');
+      return null;
     }
-    return null;
+  }
+
+  static Map<String, dynamic> _processQueryAttribute(
+    BuildContext context,
+    OpenmobileFunctionEvaluator evaluator,
+    Map<String, dynamic> json,
+  ) {
+    if (json.containsKey('query')) {
+      final query = json['query'] as String;
+      final items = evaluator.evaluateJsonFunction(context, query) as List<dynamic>;
+      final template = json['children']?.first;
+
+      if (template != null) {
+        List<Map<String, dynamic>> childrenWidgets = items.map((item) {
+          final evaluatedTemplate = evaluator.replaceItemAttributes(
+              Map<String, dynamic>.from(
+                template,
+              ),
+              item);
+          return evaluatedTemplate;
+        }).toList();
+        json['children'] = childrenWidgets;
+        json.remove('query');
+      }
+    }
+    return json;
+  }
+
+  static Widget _buildFutureWidget(
+    BuildContext context,
+    MiraiParser miraiParser,
+    OpenmobileFunctionEvaluator evaluator,
+    Map<String, dynamic> json,
+  ) {
+    return FutureBuilder<void>(
+      future: executeOnLoad(json['onLoad'], context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // ShimmerLoading()
+          return Center(child: Text('Loading Future Widget...'));
+        }
+
+        if (snapshot.hasError) {
+          Log.e('Error in FutureBuilder: ${snapshot.error}');
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        try {
+          final evaluatedJson = evaluator.evaluateJsonFunctions(context, json);
+          final model = miraiParser.getModel(evaluatedJson);
+          return miraiParser.parse(context, model);
+        } catch (e) {
+          Log.e('Error during evaluation or parsing: $e');
+          return Center(child: Text('Error: $e'));
+        }
+      },
+    );
+  }
+
+  static Widget _buildWidget(
+    BuildContext context,
+    MiraiParser miraiParser,
+    OpenmobileFunctionEvaluator evaluator,
+    Map<String, dynamic> json,
+  ) {
+    try {
+      final evaluatedJson = evaluator.evaluateJsonFunctions(context, json);
+      final model = miraiParser.getModel(evaluatedJson);
+      return miraiParser.parse(context, model);
+    } catch (e) {
+      Log.e('Error during evaluation or parsing: $e');
+      return Center(child: Text('Error: $e'));
+    }
   }
 
   static FutureOr<dynamic> onCallFromJson(
@@ -118,10 +207,11 @@ class Mirai {
     try {
       if (json != null && json['actionType'] != null) {
         String actionType = json['actionType'];
-        MiraiActionParser? miraiActionParser =
-            MiraiRegistry.instance.getActionParser(actionType);
+        MiraiActionParser? miraiActionParser = MiraiRegistry.instance.getActionParser(actionType);
         if (miraiActionParser != null) {
-          final model = miraiActionParser.getModel(json);
+          final evaluator = OpenmobileFunctionEvaluator();
+          final evaluatedJson = evaluator.evaluateJsonFunctions(context, json);
+          final model = miraiActionParser.getModel(evaluatedJson);
           return miraiActionParser.onCall(context, model);
         } else {
           Log.w('Action type [$actionType] not supported');
