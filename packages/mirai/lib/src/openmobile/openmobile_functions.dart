@@ -20,7 +20,7 @@ class OpenmobileFunctions {
     return appState.getLocalState(key);
   }
 
-  static dynamic getObjectFromLocalState(BuildContext context, String key) {
+  static dynamic getObjectFromLocalStorage(BuildContext context, String key) {
     final appState = Provider.of<AppState>(context, listen: false);
     final jsonString = appState.getStorageValue(key);
     return jsonDecode(jsonString ?? "{}");

@@ -117,7 +117,7 @@ class Mirai {
 
       mutableJson = _processQueryAttribute(context, evaluator, mutableJson);
       if (mutableJson.containsKey('onLoad')) {
-        Log.i('Executing onLoad actions');
+        // Log.i('Executing onLoad actions');
         return _buildFutureWidget(context, miraiParser, evaluator, mutableJson);
       } else {
         return _buildWidget(context, miraiParser, evaluator, mutableJson);

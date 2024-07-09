@@ -20,12 +20,31 @@ class OpenmobileFunctionEvaluator {
   }
 
   void _initializeFunctions() {
-    _functions['param'] = (context, params) => OpenmobileFunctions.getFromParams(context, params[0]);
-    _functions['storage'] = (context, params) => OpenmobileFunctions.getFromStorage(context, params[0]);
-    _functions['network'] = (context, params) => OpenmobileFunctions.getFromNetwork(context, params[0]);
-    _functions['state'] = (context, params) => OpenmobileFunctions.getFromLocalState(context, params[0]);
-    _functions['object_state'] = (context, params) => OpenmobileFunctions.getObjectFromLocalState(context, params[0]);
-    _functions['formatMoney'] = (context, params) => OpenmobileFunctions.formatMoney(context, params[0], params[1]);
+    _functions['param'] = (context, params) => OpenmobileFunctions.getFromParams(
+          context,
+          params[0],
+        );
+    _functions['storage'] = (context, params) => OpenmobileFunctions.getFromStorage(
+          context,
+          params[0],
+        );
+    _functions['object_storage'] = (context, params) => OpenmobileFunctions.getObjectFromLocalStorage(
+          context,
+          params[0],
+        );
+    _functions['network'] = (context, params) => OpenmobileFunctions.getFromNetwork(
+          context,
+          params[0],
+        );
+    _functions['state'] = (context, params) => OpenmobileFunctions.getFromLocalState(
+          context,
+          params[0],
+        );
+    _functions['formatMoney'] = (context, params) => OpenmobileFunctions.formatMoney(
+          context,
+          params[0],
+          params[1],
+        );
   }
 
   dynamic evaluate(String functionName, BuildContext context, String key) {
@@ -98,6 +117,10 @@ class OpenmobileFunctionEvaluator {
       final functionName = match.group(1);
       final functionKey = match.group(2);
       if (functionName != null && functionKey != null) {
+        var result = evaluate(functionName, context, functionKey);
+        if (result is String || result == null) {
+          return value.replaceAll("${match[0]}", "$result");
+        }
         return evaluate(functionName, context, functionKey);
       }
     }

@@ -51,6 +51,10 @@ class AppState extends ChangeNotifier {
     // notifyListeners();
   }
 
+  Future<void> setValueToStorage(String key, String value) async {
+    await _prefs?.setString(key, value);
+  }
+
   dynamic getRequest(String key) {
     return _requests[key];
   }
