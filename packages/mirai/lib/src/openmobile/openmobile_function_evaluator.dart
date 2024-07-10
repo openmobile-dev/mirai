@@ -47,7 +47,7 @@ class OpenmobileFunctionEvaluator {
         );
   }
 
-  dynamic evaluate(String functionName, BuildContext context, String key) {
+  /*dynamic evaluate(String functionName, BuildContext context, String key) {
     final function = _functions[functionName];
     if (function != null) {
       if (key.contains(',')) {
@@ -73,8 +73,8 @@ class OpenmobileFunctionEvaluator {
       }
     }
     throw UnsupportedError('Unsupported function: $functionName');
-  }
-
+  }*/
+/*
   Map<String, dynamic> evaluateJsonFunctions(BuildContext context, Map<String, dynamic> json) {
     var mutableJson = Map<String, dynamic>.from(json);
 
@@ -109,9 +109,9 @@ class OpenmobileFunctionEvaluator {
     });
 
     return mutableJson;
-  }
+  }*/
 
-  dynamic evaluateJsonFunction(BuildContext context, String value) {
+  /*dynamic evaluateJsonFunction(BuildContext context, String value) {
     final match = RegExp(r"fn\.([a-zA-Z_]+)\(([^)]+)\)").firstMatch(value);
     if (match != null) {
       final functionName = match.group(1);
@@ -125,57 +125,61 @@ class OpenmobileFunctionEvaluator {
       }
     }
     return value;
-  }
+  }*/
 
   Map<String, dynamic> replaceItemAttributes(Map<String, dynamic> json, dynamic item) {
     Map<String, dynamic> newJson = {};
 
     json.forEach((key, value) {
-      if (value is String) {
-        if (value == '{item}') {
-          newJson[key] = item;
-        } else {
-          final regex = RegExp(r'{item(?:\.([^}]+))?}');
-          final matches = regex.allMatches(value);
-
-          var newValue = value;
-
-          for (var match in matches) {
-            final attributeName = match.group(1);
-            final itemValue = attributeName != null ? _getItemAttribute(item, attributeName) : item;
-
-            String replacementValue;
-
-            if (itemValue is String) {
-              // TODO(Javi): Check the correct way to handle type of values
-              replacementValue = "$itemValue";
-            } else if (itemValue is num) {
-              replacementValue = itemValue.toString();
-            } else {
-              replacementValue = itemValue.toString();
-            }
-
-            newValue = newValue.replaceFirst(match.group(0)!, replacementValue);
-          }
-
-          newJson[key] = newValue;
-        }
-      } else if (value is Map<String, dynamic>) {
-        newJson[key] = replaceItemAttributes(value, item);
-      } else if (value is List<dynamic>) {
-        newJson[key] = value.map((element) {
-          if (element is Map<String, dynamic>) {
-            return replaceItemAttributes(element, item);
-          } else {
-            return element;
-          }
-        }).toList();
-      } else {
-        newJson[key] = value;
-      }
+      newJson[key] = replaceItemAttribute(value, item);
     });
 
     return newJson;
+  }
+
+  dynamic replaceItemAttribute(dynamic value, dynamic item) {
+    if (value is String) {
+      if (value == '{item}') {
+        return item;
+      } else {
+        final regex = RegExp(r'{item(?:\.([^}]+))?}');
+        final matches = regex.allMatches(value);
+
+        var newValue = value;
+
+        for (var match in matches) {
+          final attributeName = match.group(1);
+          final itemValue = attributeName != null ? _getItemAttribute(item, attributeName) : item;
+
+          String replacementValue;
+
+          if (itemValue is String) {
+            // TODO(Javi): Check the correct way to handle type of values
+            replacementValue = "$itemValue";
+          } else if (itemValue is num) {
+            replacementValue = itemValue.toString();
+          } else {
+            replacementValue = itemValue.toString();
+          }
+
+          newValue = newValue.replaceFirst(match.group(0)!, replacementValue);
+        }
+
+        return newValue;
+      }
+    } else if (value is Map<String, dynamic>) {
+      return replaceItemAttributes(value, item);
+    } else if (value is List<dynamic>) {
+      return value.map((element) {
+        if (element is Map<String, dynamic>) {
+          return replaceItemAttributes(element, item);
+        } else {
+          return replaceItemAttribute(element, item);
+        }
+      }).toList();
+    } else {
+      return value;
+    }
   }
 
   dynamic _getItemAttribute(dynamic item, String attributeName) {

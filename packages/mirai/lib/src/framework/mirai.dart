@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mirai/mirai.dart';
 import 'package:mirai/src/action_parsers/mirai_network_request/mirai_network_request_parser.dart';
+import 'package:mirai/src/openmobile/function_evaluator_parser.dart';
 import 'package:mirai/src/services/mirai_network_service.dart';
 import 'package:mirai/src/utils/log.dart';
 
@@ -113,8 +114,7 @@ class Mirai {
         return null;
       }
 
-      final evaluator = OpenmobileFunctionEvaluator();
-
+      final evaluator = FunctionEvaluatorParser(context);
       mutableJson = _processQueryAttribute(context, evaluator, mutableJson);
       if (mutableJson.containsKey('onLoad')) {
         // Log.i('Executing onLoad actions');
@@ -130,23 +130,27 @@ class Mirai {
 
   static Map<String, dynamic> _processQueryAttribute(
     BuildContext context,
-    OpenmobileFunctionEvaluator evaluator,
+    FunctionEvaluatorParser evaluator,
     Map<String, dynamic> json,
   ) {
     if (json.containsKey('query')) {
-      final query = json['query'] as String;
-      final items = evaluator.evaluateJsonFunction(context, query) as List<dynamic>;
+      final query = json['query'];
+      final items = evaluator.evaluate(query);
       final template = json['children']?.first;
 
       if (template != null) {
-        List<Map<String, dynamic>> childrenWidgets = items.map((item) {
-          final evaluatedTemplate = evaluator.replaceItemAttributes(
-              Map<String, dynamic>.from(
-                template,
-              ),
-              item);
-          return evaluatedTemplate;
-        }).toList();
+        OpenmobileFunctionEvaluator evaluator = OpenmobileFunctionEvaluator();
+        List<Map<String, dynamic>> childrenWidgets = [];
+
+        for (var item in items) {
+          if (item is Map<String, dynamic>) {
+            final evaluatedTemplate = evaluator.replaceItemAttributes(Map<String, dynamic>.from(template), item);
+            childrenWidgets.add(evaluatedTemplate);
+          } else {
+            throw UnsupportedError('Unsupported item type: ${item.runtimeType}');
+          }
+        }
+
         json['children'] = childrenWidgets;
         json.remove('query');
       }
@@ -157,7 +161,7 @@ class Mirai {
   static Widget _buildFutureWidget(
     BuildContext context,
     MiraiParser miraiParser,
-    OpenmobileFunctionEvaluator evaluator,
+    FunctionEvaluatorParser evaluator,
     Map<String, dynamic> json,
   ) {
     return FutureBuilder<void>(
@@ -174,9 +178,7 @@ class Mirai {
         }
 
         try {
-          final evaluatedJson = evaluator.evaluateJsonFunctions(context, json);
-          final model = miraiParser.getModel(evaluatedJson);
-          return miraiParser.parse(context, model);
+          return _buildWidget(context, miraiParser, evaluator, json);
         } catch (e) {
           Log.e('Error during evaluation or parsing: $e');
           return Center(child: Text('Error: $e'));
@@ -188,11 +190,11 @@ class Mirai {
   static Widget _buildWidget(
     BuildContext context,
     MiraiParser miraiParser,
-    OpenmobileFunctionEvaluator evaluator,
+    FunctionEvaluatorParser evaluator,
     Map<String, dynamic> json,
   ) {
     try {
-      final evaluatedJson = evaluator.evaluateJsonFunctions(context, json);
+      final evaluatedJson = evaluator.evaluateMap(json);
       final model = miraiParser.getModel(evaluatedJson);
       return miraiParser.parse(context, model);
     } catch (e) {
@@ -210,8 +212,8 @@ class Mirai {
         String actionType = json['actionType'];
         MiraiActionParser? miraiActionParser = MiraiRegistry.instance.getActionParser(actionType);
         if (miraiActionParser != null) {
-          final evaluator = OpenmobileFunctionEvaluator();
-          final evaluatedJson = evaluator.evaluateJsonFunctions(context, json);
+          final evaluator = FunctionEvaluatorParser(context);
+          final evaluatedJson = evaluator.evaluateMap(json);
           final model = miraiActionParser.getModel(evaluatedJson);
           return miraiActionParser.onCall(context, model);
         } else {

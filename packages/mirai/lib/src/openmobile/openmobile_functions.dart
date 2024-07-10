@@ -7,7 +7,16 @@ import 'package:provider/provider.dart';
 class OpenmobileFunctions {
   static dynamic getFromNetwork(BuildContext context, String key) {
     final appState = Provider.of<AppState>(context, listen: false);
-    return appState.getRequest(key);
+    final keys = key.split('.');
+    var value = appState.getRequest(keys.first);
+    for (var i = 1; i < keys.length; i++) {
+      if (keys[i] == 'length' && value is List) {
+        return value.length;
+      } else {
+        value = value[keys[i]];
+      }
+    }
+    return value;
   }
 
   static String? getFromParams(BuildContext context, String key) {
@@ -22,8 +31,13 @@ class OpenmobileFunctions {
 
   static dynamic getObjectFromLocalStorage(BuildContext context, String key) {
     final appState = Provider.of<AppState>(context, listen: false);
-    final jsonString = appState.getStorageValue(key);
-    return jsonDecode(jsonString ?? "{}");
+    final keys = key.split('.');
+    final jsonString = appState.getStorageValue(keys.first);
+    var value = jsonDecode(jsonString ?? "{}");
+    for (var i = 1; i < keys.length; i++) {
+      value = value[keys[i]];
+    }
+    return value;
   }
 
   static String? getFromStorage(BuildContext context, String key) {
