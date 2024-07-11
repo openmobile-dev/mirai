@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mirai/src/openmobile/openmobile_functions.dart';
 
@@ -32,6 +34,7 @@ class FunctionEvaluatorParser {
     _functions['network'] = _network;
     _functions['state'] = _state;
     _functions['format_money'] = _formatMoney;
+    _functions['to_string'] = _toString;
   }
 
   dynamic evaluate(Map<String, dynamic> function) {
@@ -244,5 +247,19 @@ class FunctionEvaluatorParser {
       throw RangeError('Insufficient parameters for formatMoney function');
     }
     return OpenmobileFunctions.formatMoney(context, params[0], params[1]);
+  }
+
+  dynamic _toString(List<dynamic> params) {
+    if (params.isEmpty) {
+      throw RangeError('Insufficient parameters for to_string function');
+    }
+    var param = params[0];
+    if (param is Map) {
+      return jsonEncode(param);
+    } else if (param is String) {
+      return param;
+    } else {
+      return param.toString();
+    }
   }
 }

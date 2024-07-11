@@ -9,6 +9,9 @@ class OpenmobileFunctions {
     final appState = Provider.of<AppState>(context, listen: false);
     final keys = key.split('.');
     var value = appState.getRequest(keys.first);
+    if (value == null) {
+      return null;
+    }
     for (var i = 1; i < keys.length; i++) {
       if (keys[i] == 'length' && value is List) {
         return value.length;
@@ -19,9 +22,10 @@ class OpenmobileFunctions {
     return value;
   }
 
-  static String? getFromParams(BuildContext context, String key) {
+  static dynamic getFromParams(BuildContext context, String key) {
     final appState = Provider.of<AppState>(context, listen: false);
-    return appState.getParam(key)?.toString();
+    final value = appState.getParam(key);
+    return value;
   }
 
   static dynamic getFromLocalState(BuildContext context, String key) {
