@@ -215,6 +215,7 @@ class Mirai {
           final evaluator = FunctionEvaluatorParser(context);
           final evaluatedJson = evaluator.evaluateMap(json);
           final model = miraiActionParser.getModel(evaluatedJson);
+
           return miraiActionParser.onCall(context, model);
         } else {
           Log.w('Action type [$actionType] not supported');

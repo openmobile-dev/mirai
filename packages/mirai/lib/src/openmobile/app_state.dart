@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppState extends ChangeNotifier {
@@ -11,6 +12,7 @@ class AppState extends ChangeNotifier {
   Map<String, Map<String, dynamic>> _components = {};
   Map<String, Completer<Map<String, dynamic>?>> _componentCompleters = {};
   SharedPreferences? _prefs;
+  FlutterSecureStorage? _secureStorage;
 
   Map<String, dynamic> get requests => _requests;
   Map<String, dynamic> get params => _params;
@@ -23,7 +25,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> _initializePreferences() async {
     _prefs = await SharedPreferences.getInstance();
-    // notifyListeners();
+    _secureStorage = const FlutterSecureStorage();
   }
 
   void updateRequest(String key, dynamic value) {
@@ -55,6 +57,10 @@ class AppState extends ChangeNotifier {
     await _prefs?.setString(key, value);
   }
 
+  Future<void> setValueToSecureStorage(String key, String value) async {
+    await _secureStorage?.write(key: key, value: value);
+  }
+
   dynamic getRequest(String key) {
     return _requests[key];
   }
@@ -69,6 +75,10 @@ class AppState extends ChangeNotifier {
 
   String? getStorageValue(String key) {
     return _prefs?.getString(key);
+  }
+
+  Future<String?> getSecureStorageValue(String key) async {
+    return await _secureStorage?.read(key: key);
   }
 
   Map<String, dynamic>? getComponent(String key) {
@@ -91,6 +101,11 @@ class AppState extends ChangeNotifier {
 
   void clearLocalState() {
     _localState.clear();
+    notifyListeners();
+  }
+
+  void clearSecureStorage() async {
+    await _secureStorage?.deleteAll();
     notifyListeners();
   }
 

@@ -14,8 +14,7 @@ class MiraiNetworkService {
     BuildContext context,
     MiraiNetworkRequest request,
   ) async {
-    Map<String, dynamic> headers =
-        Map<String, dynamic>.from(request.headers ?? {});
+    Map<String, dynamic> headers = Map<String, dynamic>.from(request.headers ?? {});
     _dio.options.headers = headers;
     _dio.options.contentType = request.contentType;
 

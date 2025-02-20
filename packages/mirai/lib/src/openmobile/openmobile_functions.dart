@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:mirai/src/openmobile/app_state.dart';
 import 'package:provider/provider.dart';
 
@@ -49,8 +51,23 @@ class OpenmobileFunctions {
     return appState.getStorageValue(key);
   }
 
+  static Future<String?> getFromSecureStorage(BuildContext context, String key) async {
+    final appState = Provider.of<AppState>(context, listen: false);
+    return appState.getSecureStorageValue(key);
+  }
+
   static String formatMoney(BuildContext context, String amount, String currency) {
     final value = double.parse(amount);
     return '$currency ${value.toStringAsFixed(2)}';
+  }
+
+  static String formatDate(String dateString, String format, {String locale = 'es_Es'}) {
+    initializeDateFormatting(locale, null);
+    DateTime parsedDate = DateTime.parse(dateString);
+    return DateFormat(format, locale).format(parsedDate);
+  }
+
+  static String numberToString(int number) {
+    return number.toString();
   }
 }

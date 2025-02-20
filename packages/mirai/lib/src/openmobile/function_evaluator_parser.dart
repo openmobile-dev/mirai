@@ -31,10 +31,12 @@ class FunctionEvaluatorParser {
     _functions['object_storage'] = _objectStorage;
     _functions['param'] = _param;
     _functions['storage'] = _storage;
+    _functions['secureStorage'] = _secureStorage;
     _functions['network'] = _network;
     _functions['state'] = _state;
     _functions['format_money'] = _formatMoney;
     _functions['to_string'] = _toString;
+    _functions['format_date'] = _formatDate;
   }
 
   dynamic evaluate(Map<String, dynamic> function) {
@@ -228,6 +230,13 @@ class FunctionEvaluatorParser {
     return OpenmobileFunctions.getFromStorage(context, params[0]);
   }
 
+  dynamic _secureStorage(List<dynamic> params) async {
+    if (params.isEmpty) {
+      throw RangeError('Insufficient parameters for storage function');
+    }
+    return OpenmobileFunctions.getFromSecureStorage(context, params[0]);
+  }
+
   dynamic _network(List<dynamic> params) {
     if (params.isEmpty) {
       throw RangeError('Insufficient parameters for network function');
@@ -247,6 +256,15 @@ class FunctionEvaluatorParser {
       throw RangeError('Insufficient parameters for formatMoney function');
     }
     return OpenmobileFunctions.formatMoney(context, params[0], params[1]);
+  }
+
+  String _formatDate(List<dynamic> params) {
+    if (params.length < 2) {
+      throw RangeError('Insufficient parameters for formatMoney function');
+    }
+    return params.length == 2
+        ? OpenmobileFunctions.formatDate(params[0], params[1])
+        : OpenmobileFunctions.formatDate(params[0], params[1], locale: params[2]);
   }
 
   dynamic _toString(List<dynamic> params) {

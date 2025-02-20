@@ -32,6 +32,10 @@ class OpenmobileFunctionEvaluator {
           context,
           params[0],
         );
+    _functions['secure_storage'] = (context, params) async => await OpenmobileFunctions.getFromSecureStorage(
+          context,
+          params[0],
+        );
     _functions['network'] = (context, params) => OpenmobileFunctions.getFromNetwork(
           context,
           params[0],

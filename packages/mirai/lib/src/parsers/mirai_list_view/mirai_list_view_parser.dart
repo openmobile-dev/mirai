@@ -14,8 +14,7 @@ class MiraiListViewParser extends MiraiParser<MiraiListView> {
   String get type => WidgetType.listView.name;
 
   @override
-  MiraiListView getModel(Map<String, dynamic> json) =>
-      MiraiListView.fromJson(json);
+  MiraiListView getModel(Map<String, dynamic> json) => MiraiListView.fromJson(json);
 
   @override
   Widget parse(BuildContext context, MiraiListView model) {
@@ -37,10 +36,12 @@ class MiraiListViewParser extends MiraiParser<MiraiListView> {
       restorationId: model.restorationId,
       clipBehavior: model.clipBehavior,
       itemCount: model.children.length,
-      itemBuilder: (context, index) =>
-          Mirai.fromJson(model.children[index], context),
+      itemBuilder: (context, index) => Mirai.fromJson(model.children[index], context),
       separatorBuilder: (context, _) =>
-          Mirai.fromJson(model.separator, context) ?? const SizedBox(),
+          Mirai.fromJson(model.separator, context) ??
+          const SizedBox(
+            height: 20,
+          ),
     );
   }
 }
